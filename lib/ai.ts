@@ -1,5 +1,6 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI, GenerationConfig } from '@google/generative-ai';
 
+// --- INTERFACES (Unchanged) ---
 interface RawInsight {
   type?: string;
   title?: string;
@@ -7,15 +8,6 @@ interface RawInsight {
   action?: string;
   confidence?: number;
 }
-
-const openai = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    'X-Title': 'ExpenseTracker AI',
-  },
-});
 
 export interface ExpenseRecord {
   id: string;
@@ -34,11 +26,24 @@ export interface AIInsight {
   confidence: number;
 }
 
+// --- GEMINI API INITIALIZATION ---
+// Initialize the Google Generative AI client with your API key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const modelName = 'gemini-1.5-flash-latest'; // Using a modern, fast model
+
 export async function generateExpenseInsights(
   expenses: ExpenseRecord[]
 ): Promise<AIInsight[]> {
   try {
-    // Prepare expense data for AI analysis
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      // Enforce JSON output for reliable parsing
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.7,
+      },
+    });
+
     const expensesSummary = expenses.map((expense) => ({
       amount: expense.amount,
       category: expense.category,
@@ -46,18 +51,15 @@ export async function generateExpenseInsights(
       date: expense.date,
     }));
 
-    const prompt = `Analyze the following expense data and provide 3-4 actionable financial insights. 
-    Return a JSON array of insights with this structure:
-    {
+    const prompt = `You are a financial advisor AI. Analyze the following expense data and provide 3-4 actionable financial insights. 
+    Return a JSON array of insights with this exact structure:
+    [{
       "type": "warning|info|success|tip",
       "title": "Brief title",
       "message": "Detailed insight message with specific numbers when possible",
       "action": "Actionable suggestion",
       "confidence": 0.8
-    }
-
-    Expense Data:
-    ${JSON.stringify(expensesSummary, null, 2)}
+    }]
 
     Focus on:
     1. Spending patterns (day of week, categories)
@@ -65,46 +67,18 @@ export async function generateExpenseInsights(
     3. Money-saving opportunities
     4. Positive reinforcement for good habits
 
-    Return only valid JSON array, no additional text.`;
+    Expense Data:
+    ${JSON.stringify(expensesSummary, null, 2)}
+    `;
 
-    const completion = await openai.chat.completions.create({
-      model: 'deepseek/deepseek-chat-v3-0324:free',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a financial advisor AI that analyzes spending patterns and provides actionable insights. Always respond with valid JSON only.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
-
-    const response = completion.choices[0].message.content;
-    if (!response) {
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    if (!responseText) {
       throw new Error('No response from AI');
     }
 
-    // Clean the response by removing markdown code blocks if present
-    let cleanedResponse = response.trim();
-    if (cleanedResponse.startsWith('```json')) {
-      cleanedResponse = cleanedResponse
-        .replace(/^```json\s*/, '')
-        .replace(/\s*```$/, '');
-    } else if (cleanedResponse.startsWith('```')) {
-      cleanedResponse = cleanedResponse
-        .replace(/^```\s*/, '')
-        .replace(/\s*```$/, '');
-    }
+    const insights = JSON.parse(responseText);
 
-    // Parse AI response
-    const insights = JSON.parse(cleanedResponse);
-
-    // Add IDs and ensure proper format
     const formattedInsights = insights.map(
       (insight: RawInsight, index: number) => ({
         id: `ai-${Date.now()}-${index}`,
@@ -118,9 +92,8 @@ export async function generateExpenseInsights(
 
     return formattedInsights;
   } catch (error) {
-    console.error('❌ Error generating AI insights:', error);
-
-    // Fallback to mock insights if AI fails
+    console.error('❌ Error generating AI insights with Gemini:', error);
+    // Fallback logic remains the same
     return [
       {
         id: 'fallback-1',
@@ -137,24 +110,14 @@ export async function generateExpenseInsights(
 
 export async function categorizeExpense(description: string): Promise<string> {
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'deepseek/deepseek-chat-v3-0324:free',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an expense categorization AI. Categorize expenses into one of these categories: Food, Transportation, Entertainment, Shopping, Bills, Healthcare, Other. Respond with only the category name.',
-        },
-        {
-          role: 'user',
-          content: `Categorize this expense: "${description}"`,
-        },
-      ],
-      temperature: 0.1,
-      max_tokens: 20,
-    });
+    const model = genAI.getGenerativeModel({ model: modelName });
 
-    const category = completion.choices[0].message.content?.trim();
+    const prompt = `You are an expense categorization AI. Categorize the following expense into one of these categories: Food, Transportation, Entertainment, Shopping, Bills, Healthcare, Other. Respond with only the single category name.
+    
+    Expense: "${description}"`;
+
+    const result = await model.generateContent(prompt);
+    const category = result.response.text()?.trim();
 
     const validCategories = [
       'Food',
@@ -166,12 +129,9 @@ export async function categorizeExpense(description: string): Promise<string> {
       'Other',
     ];
 
-    const finalCategory = validCategories.includes(category || '')
-      ? category!
-      : 'Other';
-    return finalCategory;
+    return validCategories.includes(category || '') ? category! : 'Other';
   } catch (error) {
-    console.error('❌ Error categorizing expense:', error);
+    console.error('❌ Error categorizing expense with Gemini:', error);
     return 'Other';
   }
 }
@@ -181,6 +141,8 @@ export async function generateAIAnswer(
   context: ExpenseRecord[]
 ): Promise<string> {
   try {
+    const model = genAI.getGenerativeModel({ model: modelName });
+
     const expensesSummary = context.map((expense) => ({
       amount: expense.amount,
       category: expense.category,
@@ -188,44 +150,23 @@ export async function generateAIAnswer(
       date: expense.date,
     }));
 
-    const prompt = `Based on the following expense data, provide a detailed and actionable answer to this question: "${question}"
+    const prompt = `You are a helpful financial advisor AI. Based on the following expense data, provide a concise but thorough answer (2-3 sentences) to this question: "${question}"
+
+    Use concrete data from the expenses when possible and offer actionable advice. Return only the answer text.
 
     Expense Data:
-    ${JSON.stringify(expensesSummary, null, 2)}
+    ${JSON.stringify(expensesSummary, null, 2)}`;
 
-    Provide a comprehensive answer that:
-    1. Addresses the specific question directly
-    2. Uses concrete data from the expenses when possible
-    3. Offers actionable advice
-    4. Keeps the response concise but informative (2-3 sentences)
-    
-    Return only the answer text, no additional formatting.`;
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
 
-    const completion = await openai.chat.completions.create({
-      model: 'deepseek/deepseek-chat-v3-0324:free',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a helpful financial advisor AI that provides specific, actionable answers based on expense data. Be concise but thorough.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 200,
-    });
-
-    const response = completion.choices[0].message.content;
     if (!response) {
       throw new Error('No response from AI');
     }
 
     return response.trim();
   } catch (error) {
-    console.error('❌ Error generating AI answer:', error);
+    console.error('❌ Error generating AI answer with Gemini:', error);
     return "I'm unable to provide a detailed answer at the moment. Please try refreshing the insights or check your connection.";
   }
 }
