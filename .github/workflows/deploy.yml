@@ -44,7 +44,7 @@ jobs:
       - name: Test Build (Standalone Output)
         run: npm run build
         env:
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dummy
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y29vbC1tYWdwaWUtMS5jbGVyay5hY2NvdW50cy5kZXYk
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
   deploy-prod:

@@ -14,7 +14,7 @@ COPY . .
 
 # Dummy build-time environment variables required by Next.js & Clerk
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_dummy
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_Y29vbC1tYWdwaWUtMS5jbGVyay5hY2NvdW50cy5kZXYk
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
 RUN npx prisma generate

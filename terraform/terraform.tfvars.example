@@ -1,0 +1,5 @@
+project_id            = "your-gcp-project-id"
+region                = "us-central1"
+service_name          = "expense-tracker"
+github_repo           = "your-github-user/nextjs-expense-tracker-website"
+clerk_publishable_key = "pk_test_..."
