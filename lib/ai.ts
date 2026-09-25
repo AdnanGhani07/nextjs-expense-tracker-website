@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, GenerationConfig } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // --- INTERFACES (Unchanged) ---
 interface RawInsight {
@@ -19,7 +19,7 @@ export interface ExpenseRecord {
 
 export interface AIInsight {
   id: string;
-  type: 'warning' | 'info' | 'success' | 'tip';
+  type: "warning" | "info" | "success" | "tip";
   title: string;
   message: string;
   action?: string;
@@ -28,18 +28,18 @@ export interface AIInsight {
 
 // --- GEMINI API INITIALIZATION ---
 // Initialize the Google Generative AI client with your API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const modelName = 'gemini-1.5-flash-latest'; // Using a modern, fast model
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const modelName = "gemini-3.5-flash-lite"; // Using a modern, fast model
 
 export async function generateExpenseInsights(
-  expenses: ExpenseRecord[]
+  expenses: ExpenseRecord[],
 ): Promise<AIInsight[]> {
   try {
     const model = genAI.getGenerativeModel({
       model: modelName,
       // Enforce JSON output for reliable parsing
       generationConfig: {
-        responseMimeType: 'application/json',
+        responseMimeType: "application/json",
         temperature: 0.7,
       },
     });
@@ -74,7 +74,7 @@ export async function generateExpenseInsights(
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     if (!responseText) {
-      throw new Error('No response from AI');
+      throw new Error("No response from AI");
     }
 
     const insights = JSON.parse(responseText);
@@ -82,26 +82,26 @@ export async function generateExpenseInsights(
     const formattedInsights = insights.map(
       (insight: RawInsight, index: number) => ({
         id: `ai-${Date.now()}-${index}`,
-        type: insight.type || 'info',
-        title: insight.title || 'AI Insight',
-        message: insight.message || 'Analysis complete',
+        type: insight.type || "info",
+        title: insight.title || "AI Insight",
+        message: insight.message || "Analysis complete",
         action: insight.action,
         confidence: insight.confidence || 0.8,
-      })
+      }),
     );
 
     return formattedInsights;
   } catch (error) {
-    console.error('❌ Error generating AI insights with Gemini:', error);
+    console.error("❌ Error generating AI insights with Gemini:", error);
     // Fallback logic remains the same
     return [
       {
-        id: 'fallback-1',
-        type: 'info',
-        title: 'AI Analysis Unavailable',
+        id: "fallback-1",
+        type: "info",
+        title: "AI Analysis Unavailable",
         message:
-          'Unable to generate personalized insights at this time. Please try again later.',
-        action: 'Refresh insights',
+          "Unable to generate personalized insights at this time. Please try again later.",
+        action: "Refresh insights",
         confidence: 0.5,
       },
     ];
@@ -120,25 +120,25 @@ export async function categorizeExpense(description: string): Promise<string> {
     const category = result.response.text()?.trim();
 
     const validCategories = [
-      'Food',
-      'Transportation',
-      'Entertainment',
-      'Shopping',
-      'Bills',
-      'Healthcare',
-      'Other',
+      "Food",
+      "Transportation",
+      "Entertainment",
+      "Shopping",
+      "Bills",
+      "Healthcare",
+      "Other",
     ];
 
-    return validCategories.includes(category || '') ? category! : 'Other';
+    return validCategories.includes(category || "") ? category! : "Other";
   } catch (error) {
-    console.error('❌ Error categorizing expense with Gemini:', error);
-    return 'Other';
+    console.error("❌ Error categorizing expense with Gemini:", error);
+    return "Other";
   }
 }
 
 export async function generateAIAnswer(
   question: string,
-  context: ExpenseRecord[]
+  context: ExpenseRecord[],
 ): Promise<string> {
   try {
     const model = genAI.getGenerativeModel({ model: modelName });
@@ -161,12 +161,12 @@ export async function generateAIAnswer(
     const response = result.response.text();
 
     if (!response) {
-      throw new Error('No response from AI');
+      throw new Error("No response from AI");
     }
 
     return response.trim();
   } catch (error) {
-    console.error('❌ Error generating AI answer with Gemini:', error);
+    console.error("❌ Error generating AI answer with Gemini:", error);
     return "I'm unable to provide a detailed answer at the moment. Please try refreshing the insights or check your connection.";
   }
 }

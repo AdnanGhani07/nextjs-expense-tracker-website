@@ -2,12 +2,22 @@
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { checkUser } from '@/lib/checkUser';
+
+import { z } from 'zod';
+
+const recordSchema = z.object({
+  text: z.string().trim().min(1, 'Description is required').max(150, 'Description is too long'),
+  amount: z.number().positive('Amount must be greater than 0').max(10000000, 'Amount cannot exceed 10,000,000'),
+  category: z.string().trim().min(1, 'Category is required').max(50, 'Category name is too long'),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+});
 
 interface RecordData {
   text: string;
   amount: number;
   category: string;
-  date: string; // Added date field
+  date: string;
 }
 
 interface RecordResult {
@@ -19,36 +29,31 @@ async function addExpenseRecord(formData: FormData): Promise<RecordResult> {
   const textValue = formData.get('text');
   const amountValue = formData.get('amount');
   const categoryValue = formData.get('category');
-  const dateValue = formData.get('date'); // Extract date from formData
+  const dateValue = formData.get('date');
 
-  // Check for input values
-  if (
-    !textValue ||
-    textValue === '' ||
-    !amountValue ||
-    !categoryValue ||
-    categoryValue === '' ||
-    !dateValue ||
-    dateValue === ''
-  ) {
-    return { error: 'Text, amount, category, or date is missing' };
+  const rawAmount = parseFloat(amountValue ? amountValue.toString() : '');
+  const validation = recordSchema.safeParse({
+    text: textValue ? textValue.toString() : '',
+    amount: isNaN(rawAmount) ? 0 : rawAmount,
+    category: categoryValue ? categoryValue.toString() : '',
+    date: dateValue ? dateValue.toString() : '',
+  });
+
+  if (!validation.success) {
+    return { error: validation.error.issues[0]?.message || 'Invalid input data' };
   }
 
-  const text: string = textValue.toString(); // Ensure text is a string
-  const amount: number = parseFloat(amountValue.toString()); // Parse amount as number
-  const category: string = categoryValue.toString(); // Ensure category is a string
-  // Convert date to ISO-8601 format while preserving the user's input date
+  const { text, amount, category, date: inputDate } = validation.data;
+
   let date: string;
   try {
-    // Parse the date string (YYYY-MM-DD format) and create a date at noon UTC to avoid timezone issues
-    const inputDate = dateValue.toString();
     const [year, month, day] = inputDate.split('-');
     const dateObj = new Date(
       Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), 12, 0, 0)
     );
     date = dateObj.toISOString();
   } catch (error) {
-    console.error('Invalid date format:', error); // Log the error
+    console.error('Invalid date format:', error);
     return { error: 'Invalid date format' };
   }
 
@@ -59,6 +64,9 @@ async function addExpenseRecord(formData: FormData): Promise<RecordResult> {
   if (!userId) {
     return { error: 'User not found' };
   }
+
+  // Ensure user exists in our database
+  await checkUser();
 
   try {
     // Create a new record (allow multiple expenses per day)
