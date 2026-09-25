@@ -43,6 +43,14 @@ next-env.d.ts
 
 /app/generated/prisma
 
+# security & credentials
+*.pem
+*.key
+*credentials*.json
+*service-account*.json
+*gcp-key*.json
+*gha-creds*.json
+
 # terraform
 **/.terraform/*
 *.tfstate
@@ -51,9 +59,11 @@ crash.log
 crash.*.log
 *.tfvars
 *.tfvars.json
+!terraform/terraform.tfvars.example
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 .terraformrc
 terraform.rc
+
