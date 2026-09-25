@@ -26,10 +26,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22 (LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install Dependencies
@@ -40,6 +40,9 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+      - name: Run Automated Test Suite
+        run: npm test
 
       - name: Test Build (Standalone Output)
         run: npm run build
@@ -81,7 +84,6 @@ jobs:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/app:${{ github.sha }}
-          tag: ${{ github.sha }}
 
       - name: Post-Deployment Health Smoke Test
         run: |

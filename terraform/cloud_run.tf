@@ -12,7 +12,7 @@ resource "google_cloud_run_v2_service" "app" {
     }
 
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/app:latest"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
 
       resources {
         limits = {
@@ -37,7 +37,7 @@ resource "google_cloud_run_v2_service" "app" {
 
       # Secrets injected securely from GCP Secret Manager
       dynamic "env" {
-        for_each = toset(locals.app_secret_keys)
+        for_each = toset(local.app_secret_keys)
         content {
           name = env.key
           value_source {
@@ -48,17 +48,16 @@ resource "google_cloud_run_v2_service" "app" {
           }
         }
       }
-
-      startup_probe {
-        http_get {
-          path = "/api/healthz"
-          port = 3000
-        }
-        initial_delay_seconds = 10
-        period_seconds        = 5
-        failure_threshold     = 3
-      }
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].image,
+      template[0].containers[0].startup_probe,
+    ]
   }
 
   depends_on = [
