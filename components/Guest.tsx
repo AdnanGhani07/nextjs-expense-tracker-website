@@ -102,7 +102,6 @@ export default function Guest() {
   const [txPhase, setTxPhase] = useState<"enter" | "idle" | "exit">("enter");
   const [typedText, setTypedText] = useState("");
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [processedCount, setProcessedCount] = useState(0);
 
   const tx = PIPELINE_ITEMS[txIndex];
 
@@ -124,7 +123,6 @@ export default function Guest() {
     setTxPhase("exit");
     setTimeout(() => {
       setTxIndex((prev) => (prev + 1) % PIPELINE_ITEMS.length);
-      setProcessedCount((c) => c + 1);
     }, 300);
   }, []);
 

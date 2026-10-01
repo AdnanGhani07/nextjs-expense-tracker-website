@@ -176,15 +176,6 @@ body {
   background-size: 60px 60px;
 }
 
-/* Confidence ring SVG animation */
-@keyframes dash-fill {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: var(--dash-target, 25); }
-}
-.confidence-ring {
-  animation: dash-fill 1.2s ease-out forwards;
-}
-
 /* Slide-up transition for transaction cycling */
 .tx-enter { animation: tx-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes tx-slide-up {
