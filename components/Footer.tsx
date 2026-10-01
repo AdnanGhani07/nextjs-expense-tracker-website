@@ -1,106 +1,111 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className='relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-emerald-900/20 border-t border-gray-100/50 dark:border-gray-700/50'>
-      {/* Gradient accent line */}
-      <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500'></div>
+    <footer className="relative border-t border-slate-200/80 dark:border-white/5 bg-slate-50 dark:bg-obsidian-950 transition-colors duration-300 overflow-hidden">
+      {/* Top subtle glow line */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/50 to-transparent" />
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8 mb-8'>
-          {/* Logo and Tagline */}
-          <div className='text-center md:text-left'>
-            <div className='inline-flex items-center gap-2 mb-4'>
-              <div className='w-8 h-8 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg'>
-                <span className='text-white text-lg'>💰</span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+          {/* Brand & Description */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-teal-600 flex items-center justify-center shadow-glow-sm">
+                <span className="font-mono font-black text-white text-base">
+                  F
+                </span>
               </div>
-              <h2 className='text-xl font-bold bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent'>
-                ExpenseTracker AI
-              </h2>
+              <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+                Finova <span className="text-brand-500">AI</span>
+              </span>
             </div>
-            <p className='text-gray-600 dark:text-gray-400 leading-relaxed max-w-sm'>
-              Intelligent financial management powered by AI. Track your
-              expenses, manage your budget, and gain insights into your spending
-              patterns.
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
+              Autonomous expense tracking and predictive financial insights.
+              Built on serverless infrastructure for zero idle footprint.
             </p>
-          </div>
-
-          {/* Navigation Links */}
-          <div className='text-center md:text-left'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4'>
-              Quick Links
-            </h3>
-            <div className='flex flex-col space-y-3'>
-              <Link
-                href='/'
-                className='group inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm font-medium transition-colors duration-200'
-              >
-                <span className='w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200'></span>
-                Home
-              </Link>
-              <Link
-                href='/about'
-                className='group inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm font-medium transition-colors duration-200'
-              >
-                <span className='w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200'></span>
-                About
-              </Link>
-              <Link
-                href='/contact'
-                className='group inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-sm font-medium transition-colors duration-200'
-              >
-                <span className='w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200'></span>
-                Contact
-              </Link>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <span className="px-2.5 py-0.5 rounded-md bg-slate-200/70 dark:bg-obsidian-900 border border-slate-300/50 dark:border-white/5 text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                Next.js 15
+              </span>
+              <span className="px-2.5 py-0.5 rounded-md bg-slate-200/70 dark:bg-obsidian-900 border border-slate-300/50 dark:border-white/5 text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                Gemini AI
+              </span>
+              <span className="px-2.5 py-0.5 rounded-md bg-slate-200/70 dark:bg-obsidian-900 border border-slate-300/50 dark:border-white/5 text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                Neon Postgres
+              </span>
             </div>
           </div>
 
-          {/* Features */}
-          <div className='text-center md:text-left'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4'>
-              Features
+          {/* Quick Links */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
+              Platform
             </h3>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-3 text-gray-600 dark:text-gray-400 text-sm'>
-                <div className='w-5 h-5 bg-gradient-to-br from-emerald-500 to-green-500 rounded-md flex items-center justify-center shadow-sm'>
-                  <span className='text-white text-xs'>🤖</span>
-                </div>
-                AI-Powered Insights
-              </div>
-              <div className='flex items-center gap-3 text-gray-600 dark:text-gray-400 text-sm'>
-                <div className='w-5 h-5 bg-gradient-to-br from-green-500 to-teal-500 rounded-md flex items-center justify-center shadow-sm'>
-                  <span className='text-white text-xs'>✨</span>
-                </div>
-                Smart Categorization
-              </div>
-              <div className='flex items-center gap-3 text-gray-600 dark:text-gray-400 text-sm'>
-                <div className='w-5 h-5 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-md flex items-center justify-center shadow-sm'>
-                  <span className='text-white text-xs'>📊</span>
-                </div>
-                Analytics Dashboard
-              </div>
-            </div>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  href="/"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-500 transition-colors"
+                >
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-500 transition-colors"
+                >
+                  Architecture & About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-slate-600 dark:text-slate-400 hover:text-brand-500 transition-colors"
+                >
+                  Contact & Support
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Security & Health */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
+              System Status
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Cloud Run: Healthy</span>
+              </li>
+              <li className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>SSL Encrypted</span>
+              </li>
+              <li>
+                <a
+                  href="/api/healthz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                >
+                  Live Probe Endpoint ↗
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className='w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent mb-8'></div>
-
-        {/* Copyright and Social */}
-        <div className='flex flex-col md:flex-row justify-between items-center'>
-          <div className='text-center md:text-left mb-4 md:mb-0'>
-            <p className='text-gray-500 dark:text-gray-400 text-sm'>
-              © {new Date().getFullYear()} ExpenseTracker AI. All rights
-              reserved.
-            </p>
-          </div>
-
-          <div className='flex items-center gap-4'>
-            <div className='inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-medium'>
-              <span className='w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse'></span>
-              Made by Adnan
-            </div>
-          </div>
+        {/* Bottom bar */}
+        <div className="pt-6 border-t border-slate-200/60 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <p>© {new Date().getFullYear()} Finova AI. All rights reserved.</p>
+          <p className="flex items-center gap-1.5">
+            <span>Crafted with</span>
+            <span className="text-brand-500">⚡</span>
+            <span>by Adnan Ghani</span>
+          </p>
         </div>
       </div>
     </footer>

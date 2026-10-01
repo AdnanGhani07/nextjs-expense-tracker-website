@@ -1,231 +1,165 @@
-'use client';
+"use client";
 
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
-import Link from 'next/link';
-import ThemeToggle from '@/components/ThemeToggle';
-import { useState } from 'react';
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const navLinks = [
+    { name: "Dashboard", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
 
   return (
-    <nav className='sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-600/50 shadow-lg shadow-gray-900/5 dark:shadow-black/30'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex items-center justify-between h-14 sm:h-16'>
-          {/* Logo Section */}
-          <div className='flex items-center'>
+    <nav className="sticky top-0 z-50 glass-panel border-b border-slate-200/80 dark:border-white/10 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18">
+          {/* Brand Logo & Name */}
+          <div className="flex items-center gap-3">
             <Link
-              href='/'
-              className='flex items-center gap-2 sm:gap-3 flex-shrink-0 group transition-all duration-300 hover:scale-105'
+              href="/"
+              className="flex items-center gap-2.5 group transition-transform duration-200 hover:scale-[1.02]"
               onClick={closeMobileMenu}
             >
-              <div className='w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:rotate-3'>
-                <span className='text-white text-xs sm:text-sm md:text-lg font-bold'>
-                  💰
+              {/* Glowing Monogram Emblem */}
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-brand-400 via-brand-500 to-teal-600 flex items-center justify-center shadow-glow-sm group-hover:shadow-glow transition-all duration-300">
+                <span className="font-mono font-black text-white text-lg sm:text-xl tracking-tighter">
+                  F
+                </span>
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-cyan-400 rounded-full ring-2 ring-white dark:ring-obsidian-950 animate-pulse" />
+              </div>
+
+              {/* Wordmark */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sans">
+                  Finova
+                </span>
+                <span className="bg-gradient-to-r from-brand-500/15 to-cyan-500/15 dark:from-brand-400/20 dark:to-cyan-400/20 border border-brand-500/30 text-brand-600 dark:text-brand-300 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                  AI
                 </span>
               </div>
-              <span className='text-sm sm:text-base md:text-lg lg:text-xl font-bold bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 bg-clip-text text-transparent'>
-                <span className='hidden sm:inline'>ExpenseTracker AI</span>
-                <span className='sm:hidden'>ExpenseTracker</span>
-              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className='hidden md:flex items-center space-x-1'>
-            <Link
-              href='/'
-              className='relative text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 lg:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 group'
-            >
-              <span className='relative z-10'>Home</span>
-              <div className='absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200'></div>
-            </Link>
-
-            <Link
-              href='/about'
-              className='relative text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 lg:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 group'
-            >
-              <span className='relative z-10'>About</span>
-              <div className='absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200'></div>
-            </Link>
-
-            <Link
-              href='/contact'
-              className='relative text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 lg:px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 group'
-            >
-              <span className='relative z-10'>Contact</span>
-              <div className='absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200'></div>
-            </Link>
+          <div className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-obsidian-900/80 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                    isActive
+                      ? "bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/40"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Right Section */}
-          <div className='flex items-center space-x-1 sm:space-x-2'>
-            {/* Theme Toggle */}
-            <div className='p-0.5 sm:p-1'>
-              <ThemeToggle />
-            </div>
+          {/* Right Section: Theme Toggle & User Auth */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
 
-            {/* Authentication - Desktop */}
-            <div className='hidden sm:block'>
-              <SignedOut>
-                <SignInButton>
-                  <button className='relative overflow-hidden bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95'>
-                    <div className='relative z-10 flex items-center gap-1 sm:gap-2'>
-                      <span>Sign In</span>
-                      <svg
-                        className='w-3 h-3 sm:w-4 sm:h-4'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1'
-                        />
-                      </svg>
-                    </div>
-                    <div className='absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300'></div>
-                  </button>
-                </SignInButton>
-              </SignedOut>
+            {/* Auth Buttons */}
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="relative group overflow-hidden bg-slate-900 dark:bg-brand-500 hover:bg-slate-800 dark:hover:bg-brand-400 text-white dark:text-slate-950 font-semibold px-4 py-2 rounded-xl text-xs sm:text-sm shadow-sm hover:shadow-glow-sm transition-all duration-200 active:scale-95 flex items-center gap-1.5">
+                  <span>Sign In</span>
+                  <span className="transition-transform group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </button>
+              </SignInButton>
+            </SignedOut>
 
-              <SignedIn>
-                <div className='p-0.5 sm:p-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-100/50 to-green-100/50 dark:from-emerald-900/20 dark:to-green-900/20 backdrop-blur-sm border border-emerald-200/30 dark:border-emerald-700/30'>
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        avatarBox:
-                          'w-6 h-6 sm:w-8 sm:h-8 hover:scale-110 transition-transform duration-200',
-                        userButtonBox: 'flex items-center justify-center',
-                      },
-                    }}
-                  />
-                </div>
-              </SignedIn>
-            </div>
+            <SignedIn>
+              <div className="flex items-center gap-2 pl-1">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox:
+                        "w-9 h-9 ring-2 ring-brand-500/30 hover:ring-brand-500 transition-all rounded-xl",
+                    },
+                  }}
+                />
+              </div>
+            </SignedIn>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={toggleMobileMenu}
-              className='md:hidden p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all duration-200 active:scale-95'
-              aria-label='Toggle mobile menu'
-            >
-              <svg
-                className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 ${
-                  isMobileMenuOpen ? 'rotate-90' : ''
-                }`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
+            {/* Mobile Hamburger Toggle Button */}
+            <div className="flex md:hidden">
+              <button
+                onClick={toggleMobileMenu}
+                aria-label="Toggle mobile menu"
+                className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 focus:outline-none transition-colors"
               >
-                {isMobileMenuOpen ? (
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M6 18L18 6M6 6l12 12'
-                  />
-                ) : (
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M4 6h16M4 12h16M4 18h16'
-                  />
-                )}
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div
-          className={`md:hidden transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen
-              ? 'max-h-96 opacity-100 pb-3 sm:pb-4'
-              : 'max-h-0 opacity-0 overflow-hidden'
-          }`}
-        >
-          <div className='px-2 pt-2 pb-3 space-y-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-600/50 mt-2 shadow-lg'>
-            {/* Mobile Navigation Links */}
-            <Link
-              href='/'
-              className='flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-all duration-200 active:scale-95'
-              onClick={closeMobileMenu}
-            >
-              <span className='text-base'>🏠</span>
-              <span>Home</span>
-            </Link>
-            <Link
-              href='/about'
-              className='flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-all duration-200 active:scale-95'
-              onClick={closeMobileMenu}
-            >
-              <span className='text-base'>ℹ️</span>
-              <span>About</span>
-            </Link>
-            <Link
-              href='/contact'
-              className='flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 text-sm font-medium transition-all duration-200 active:scale-95'
-              onClick={closeMobileMenu}
-            >
-              <span className='text-base'>📞</span>
-              <span>Contact</span>
-            </Link>
-
-            {/* Mobile Authentication */}
-            <div className='pt-3 border-t border-gray-200/50 dark:border-gray-600/50'>
-              <SignedOut>
-                <SignInButton>
-                  <button
-                    className='w-full bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 text-white px-4 py-3 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-95'
-                    onClick={closeMobileMenu}
-                  >
-                    <span>Sign In</span>
-                    <svg
-                      className='w-4 h-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1'
-                      />
-                    </svg>
-                  </button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <div className='flex items-center justify-center p-3 rounded-xl bg-gradient-to-r from-emerald-100/50 to-green-100/50 dark:from-emerald-900/20 dark:to-green-900/20 backdrop-blur-sm border border-emerald-200/30 dark:border-emerald-700/30'>
-                  <UserButton
-                    appearance={{
-                      elements: {
-                        avatarBox:
-                          'w-8 h-8 hover:scale-110 transition-transform duration-200',
-                        userButtonBox: 'flex items-center justify-center',
-                      },
-                    }}
-                  />
-                </div>
-              </SignedIn>
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {isMobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 dark:border-white/10 glass-panel px-4 pt-3 pb-5 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={closeMobileMenu}
+                className={`block px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "bg-brand-500/10 text-brand-600 dark:text-brand-400"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+          <div className="pt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-4">
+            <span>Status: Gemini 2.0 Connected</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

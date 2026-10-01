@@ -1,311 +1,325 @@
-'use client';
-import { useRef, useState } from 'react';
-import addExpenseRecord from '@/app/actions/addExpenseRecord';
-import { suggestCategory } from '@/app/actions/suggestCategory';
+"use client";
 
-const AddRecord = () => {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [amount, setAmount] = useState(50); // Default value for expense amount
-  const [alertMessage, setAlertMessage] = useState<string | null>(null); // State for alert message
-  const [alertType, setAlertType] = useState<'success' | 'error' | null>(null); // State for alert type
-  const [isLoading, setIsLoading] = useState(false); // State for loading spinner
-  const [category, setCategory] = useState(''); // State for selected expense category
-  const [description, setDescription] = useState(''); // State for expense description
-  const [isCategorizingAI, setIsCategorizingAI] = useState(false); // State for AI categorization loading
+import { useState, useTransition } from "react";
+import addExpenseRecord from "@/app/actions/addExpenseRecord";
+import { suggestCategory } from "@/app/actions/suggestCategory";
 
-  const clientAction = async (formData: FormData) => {
-    setIsLoading(true); // Show spinner
-    setAlertMessage(null); // Clear previous messages
+const CATEGORIES = [
+  {
+    name: "Food",
+    icon: "🍔",
+    color:
+      "from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30",
+  },
+  {
+    name: "Transportation",
+    icon: "🚗",
+    color:
+      "from-blue-500/20 to-sky-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30",
+  },
+  {
+    name: "Bills",
+    icon: "💡",
+    color:
+      "from-rose-500/20 to-red-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30",
+  },
+  {
+    name: "Shopping",
+    icon: "🛍️",
+    color:
+      "from-purple-500/20 to-indigo-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30",
+  },
+  {
+    name: "Entertainment",
+    icon: "🎬",
+    color:
+      "from-fuchsia-500/20 to-pink-500/20 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30",
+  },
+  {
+    name: "Healthcare",
+    icon: "🏥",
+    color:
+      "from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+  },
+  {
+    name: "Other",
+    icon: "📦",
+    color:
+      "from-slate-500/20 to-gray-500/20 text-slate-600 dark:text-slate-400 border-slate-500/30",
+  },
+];
 
-    formData.set('amount', amount.toString()); // Add the amount value to the form data
-    formData.set('category', category); // Add the selected category to the form data
+const PRESETS = [10, 25, 50, 100];
 
-    const { error } = await addExpenseRecord(formData); // Removed `data` since it's unused
+export default function AddNewRecord() {
+  const [isPending, startTransition] = useTransition();
 
-    if (error) {
-      setAlertMessage(`Error: ${error}`);
-      setAlertType('error'); // Set alert type to error
-    } else {
-      setAlertMessage('Expense record added successfully!');
-      setAlertType('success'); // Set alert type to success
-      formRef.current?.reset();
-      setAmount(50); // Reset the amount to the default value
-      setCategory(''); // Reset the category
-      setDescription(''); // Reset the description
-    }
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState<number | string>(50);
+  const [category, setCategory] = useState("Food");
+  const [date, setDate] = useState(
+    () => new Date().toISOString().split("T")[0],
+  );
 
-    setIsLoading(false); // Hide spinner
-  };
+  const [isCategorizingAI, setIsCategorizingAI] = useState(false);
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
-  const handleAISuggestCategory = async () => {
-    if (!description.trim()) {
-      setAlertMessage('Please enter a description first');
-      setAlertType('error');
+  const handleAISuggest = async () => {
+    if (!description.trim() || description.trim().length < 2) {
+      setAlert({
+        message: 'Enter a description first (e.g., "Grocery shopping")',
+        type: "error",
+      });
       return;
     }
 
     setIsCategorizingAI(true);
-    setAlertMessage(null);
+    setAlert(null);
 
     try {
-      const result = await suggestCategory(description);
-      if (result.error) {
-        setAlertMessage(`AI Suggestion: ${result.error}`);
-        setAlertType('error');
-      } else {
-        setCategory(result.category);
-        setAlertMessage(`AI suggested category: ${result.category}`);
-        setAlertType('success');
+      const res = await suggestCategory(description);
+      if (res.error) {
+        setAlert({ message: res.error, type: "error" });
+      } else if (res.category) {
+        setCategory(res.category);
+        setAlert({
+          message: `Gemini classified as "${res.category}"`,
+          type: "success",
+        });
       }
     } catch {
-      setAlertMessage('Failed to get AI category suggestion');
-      setAlertType('error');
+      setAlert({
+        message: "Unable to reach AI categorization service",
+        type: "error",
+      });
     } finally {
       setIsCategorizingAI(false);
     }
   };
 
-  return (
-    <div className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-xl border border-gray-100/50 dark:border-gray-700/50 hover:shadow-2xl'>
-      <div className='flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6'>
-        <div className='w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg'>
-          <span className='text-white text-sm sm:text-lg'>💳</span>
-        </div>
-        <div>
-          <h3 className='text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight'>
-            Add New Expense
-          </h3>
-          <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>
-            Track your spending with AI assistance
-          </p>
-        </div>
-      </div>
-      <form
-        ref={formRef}
-        onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(formRef.current!);
-          clientAction(formData);
-        }}
-        className='space-y-6 sm:space-y-8'
-      >
-        {/* Expense Description and Date */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-emerald-50/50 to-green-50/50 dark:from-emerald-900/10 dark:to-green-900/10 rounded-xl border border-emerald-100/50 dark:border-emerald-800/50'>
-          {/* Expense Description */}
-          <div className='space-y-1.5'>
-            <label
-              htmlFor='text'
-              className='flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide'
-            >
-              <span className='w-1.5 h-1.5 bg-emerald-500 rounded-full'></span>
-              Expense Description
-            </label>
-            <div className='relative'>
-              <input
-                type='text'
-                id='text'
-                name='text'
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className='w-full pl-3 pr-12 sm:pr-14 py-2.5 bg-white/70 dark:bg-gray-800/70 border-2 border-gray-200/80 dark:border-gray-600/80 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700/90 focus:border-emerald-400 dark:focus:border-emerald-400 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm shadow-sm hover:shadow-md transition-all duration-200'
-                placeholder='Coffee, groceries, gas...'
-                required
-              />
-              <button
-                type='button'
-                onClick={handleAISuggestCategory}
-                disabled={isCategorizingAI || !description.trim()}
-                className='absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-7 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 disabled:from-gray-300 disabled:to-gray-300 text-white rounded-lg text-xs font-medium flex items-center justify-center shadow-lg hover:shadow-xl disabled:shadow-none transition-all duration-200'
-                title='AI Category Suggestion'
-              >
-                {isCategorizingAI ? (
-                  <div className='w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
-                ) : (
-                  <span className='text-xs'>✨</span>
-                )}
-              </button>
-            </div>
-            {isCategorizingAI && (
-              <div className='flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400'>
-                <div className='w-1.5 h-1.5 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse'></div>
-                AI is analyzing your description...
-              </div>
-            )}
-          </div>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAlert(null);
 
-          {/* Expense Date */}
-          <div className='space-y-1.5'>
-            <label
-              htmlFor='date'
-              className='flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide'
-            >
-              <span className='w-1.5 h-1.5 bg-green-500 rounded-full'></span>
-              Expense Date
-            </label>
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(numAmount) || numAmount <= 0) {
+      setAlert({
+        message: "Please enter a valid amount greater than $0",
+        type: "error",
+      });
+      return;
+    }
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("text", description);
+      formData.set("amount", numAmount.toString());
+      formData.set("category", category);
+      formData.set("date", date);
+
+      const res = await addExpenseRecord(formData);
+
+      if (res.error) {
+        setAlert({ message: res.error, type: "error" });
+      } else {
+        setAlert({ message: "Expense logged successfully!", type: "success" });
+        setDescription("");
+        setAmount(50);
+        setCategory("Food");
+      }
+    });
+  };
+
+  return (
+    <div className="glass-card rounded-3xl p-5 sm:p-7 space-y-6 relative overflow-hidden transition-all duration-300">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200/60 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-400 to-teal-600 flex items-center justify-center shadow-glow-sm">
+            <span className="text-lg">💳</span>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
+              Log Expense
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Quick entry with AI auto-categorization
+            </p>
+          </div>
+        </div>
+
+        {/* AI Auto-Suggest Button */}
+        <button
+          type="button"
+          onClick={handleAISuggest}
+          disabled={isCategorizingAI || !description.trim()}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800/60 hover:bg-brand-100 dark:hover:bg-brand-900/60 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          title="Auto-detect category with Gemini AI"
+        >
+          <span className={`text-xs ${isCategorizingAI ? "animate-spin" : ""}`}>
+            {isCategorizingAI ? "⏳" : "✨"}
+          </span>
+          <span className="hidden sm:inline">AI Classify</span>
+        </button>
+      </div>
+
+      {/* Alert Banner */}
+      {alert && (
+        <div
+          className={`p-3.5 rounded-2xl text-xs font-medium flex items-center justify-between transition-all ${
+            alert.type === "success"
+              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50"
+              : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <span>{alert.type === "success" ? "✓" : "⚠️"}</span>
+            <span>{alert.message}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setAlert(null)}
+            className="opacity-60 hover:opacity-100 text-sm font-bold leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Description Input */}
+        <div className="space-y-1.5">
+          <label
+            htmlFor="expense-text"
+            className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between"
+          >
+            <span>Description</span>
+            <span className="text-[10px] text-slate-400 font-mono">
+              Max 150 chars
+            </span>
+          </label>
+          <div className="relative">
             <input
-              type='date'
-              name='date'
-              id='date'
-              className='w-full px-3 py-2.5 bg-white/70 dark:bg-gray-800/70 border-2 border-gray-200/80 dark:border-gray-600/80 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700/90 focus:border-emerald-400 dark:focus:border-emerald-400 text-gray-900 dark:text-gray-100 text-sm shadow-sm hover:shadow-md transition-all duration-200'
+              id="expense-text"
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g., Grocery shopping at Trader Joe's"
+              maxLength={150}
               required
-              onFocus={(e) => e.target.showPicker()}
+              className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-obsidian-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm transition-all"
             />
           </div>
         </div>
 
-        {/* Category Selection and Amount */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-xl border border-green-100/50 dark:border-green-800/50'>
-          {/* Category Selection */}
-          <div className='space-y-1.5'>
+        {/* Amount & Presets */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
             <label
-              htmlFor='category'
-              className='flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide'
+              htmlFor="expense-amount"
+              className="text-xs font-semibold text-slate-700 dark:text-slate-300"
             >
-              <span className='w-1.5 h-1.5 bg-green-500 rounded-full'></span>
-              Category
-              <span className='text-xs text-gray-400 dark:text-gray-500 ml-2 font-normal hidden sm:inline'>
-                Use the ✨ button above for AI suggestions
-              </span>
+              Amount (USD)
             </label>
-            <select
-              id='category'
-              name='category'
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className='w-full px-3 py-2.5 bg-white/70 dark:bg-gray-800/70 border-2 border-gray-200/80 dark:border-gray-600/80 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700/90 focus:border-emerald-400 dark:focus:border-emerald-400 text-gray-900 dark:text-gray-100 cursor-pointer text-sm shadow-sm hover:shadow-md transition-all duration-200'
-              required
-            >
-              <option
-                value=''
-                disabled
-                className='text-gray-400 dark:text-gray-500'
-              >
-                Select category...
-              </option>
-              <option value='Food' className='text-gray-900 dark:text-gray-100'>
-                🍔 Food & Dining
-              </option>
-              <option
-                value='Transportation'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                🚗 Transportation
-              </option>
-              <option
-                value='Shopping'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                🛒 Shopping
-              </option>
-              <option
-                value='Entertainment'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                🎬 Entertainment
-              </option>
-              <option
-                value='Bills'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                💡 Bills & Utilities
-              </option>
-              <option
-                value='Healthcare'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                🏥 Healthcare
-              </option>
-              <option
-                value='Other'
-                className='text-gray-900 dark:text-gray-100'
-              >
-                📦 Other
-              </option>
-            </select>
-          </div>
-
-          {/* Amount */}
-          <div className='space-y-1.5'>
-            <label
-              htmlFor='amount'
-              className='flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide'
-            >
-              <span className='w-1.5 h-1.5 bg-green-500 rounded-full'></span>
-              Amount
-              <span className='text-xs text-gray-400 dark:text-gray-500 ml-2 font-normal hidden sm:inline'>
-                Enter amount between $0 and $1,000
-              </span>
-            </label>
-            <div className='relative'>
-              <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium text-sm'>
-                $
-              </span>
-              <input
-                type='number'
-                name='amount'
-                id='amount'
-                min='0'
-                max='1000'
-                step='0.01'
-                value={amount}
-                onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                className='w-full pl-6 pr-3 py-2.5 bg-white/70 dark:bg-gray-800/70 border-2 border-gray-200/80 dark:border-gray-600/80 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700/90 focus:border-emerald-400 dark:focus:border-emerald-400 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm font-semibold shadow-sm hover:shadow-md transition-all duration-200'
-                placeholder='0.00'
-                required
-              />
+            <div className="flex items-center gap-1">
+              {PRESETS.map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setAmount(val)}
+                  className="px-2 py-0.5 rounded-lg text-[11px] font-mono font-medium bg-slate-100 dark:bg-obsidian-900 hover:bg-brand-500/10 hover:text-brand-500 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/5 transition-colors"
+                >
+                  ${val}
+                </button>
+              ))}
             </div>
           </div>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">
+              $
+            </span>
+            <input
+              id="expense-amount"
+              type="number"
+              step="0.01"
+              min="0.01"
+              max="10000000"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              required
+              className="w-full pl-8 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-obsidian-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all tabular-nums"
+            />
+          </div>
+        </div>
+
+        {/* Category Pills Grid */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
+            Category
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {CATEGORIES.map((cat) => {
+              const isSelected = category === cat.name;
+              return (
+                <button
+                  key={cat.name}
+                  type="button"
+                  onClick={() => setCategory(cat.name)}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border transition-all text-left ${
+                    isSelected
+                      ? "bg-brand-500 text-white dark:text-slate-950 border-brand-500 shadow-glow-sm scale-[1.02]"
+                      : "bg-slate-50 dark:bg-obsidian-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/20"
+                  }`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="truncate">{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Date Selection */}
+        <div className="space-y-1.5">
+          <label
+            htmlFor="expense-date"
+            className="text-xs font-semibold text-slate-700 dark:text-slate-300 block"
+          >
+            Transaction Date
+          </label>
+          <input
+            id="expense-date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            className="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-obsidian-900 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
+          />
         </div>
 
         {/* Submit Button */}
         <button
-          type='submit'
-          className='w-full relative overflow-hidden bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 hover:from-emerald-700 hover:via-green-600 hover:to-teal-600 text-white px-4 py-3 sm:px-5 sm:py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl group transition-all duration-300 border-2 border-transparent hover:border-white/20 text-sm sm:text-base'
-          disabled={isLoading}
+          type="submit"
+          disabled={isPending}
+          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-500 to-teal-500 hover:from-brand-600 hover:to-teal-600 text-slate-950 font-bold text-sm shadow-glow-sm hover:shadow-glow transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <div className='relative flex items-center justify-center gap-2'>
-            {isLoading ? (
-              <>
-                <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <span className='text-lg'>💫</span>
-                <span>Add Expense</span>
-              </>
-            )}
-          </div>
+          {isPending ? (
+            <>
+              <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              <span>Logging Expense...</span>
+            </>
+          ) : (
+            <>
+              <span>+ Save Expense Record</span>
+            </>
+          )}
         </button>
       </form>
-
-      {/* Alert Message */}
-      {alertMessage && (
-        <div
-          className={`mt-4 p-3 rounded-xl border-l-4 backdrop-blur-sm ${
-            alertType === 'success'
-              ? 'bg-green-50/80 dark:bg-green-900/20 border-l-green-500 text-green-800 dark:text-green-200'
-              : 'bg-red-50/80 dark:bg-red-900/20 border-l-red-500 text-red-800 dark:text-red-200'
-          }`}
-        >
-          <div className='flex items-center gap-2'>
-            <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                alertType === 'success'
-                  ? 'bg-green-100 dark:bg-green-800'
-                  : 'bg-red-100 dark:bg-red-800'
-              }`}
-            >
-              <span className='text-sm'>
-                {alertType === 'success' ? '✅' : '⚠️'}
-              </span>
-            </div>
-            <p className='font-medium text-sm'>{alertMessage}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
-};
-
-export default AddRecord;
+}

@@ -29,17 +29,21 @@ export default function ExpenseStats() {
     loadStats();
   }, []);
 
+  const formatCurrency = (val: number) => {
+    return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   if (isLoading) {
     return (
-      <div className='grid grid-cols-2 gap-3 sm:gap-4'>
+      <div className='grid grid-cols-2 gap-4'>
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-gray-100/50 dark:border-gray-700/50 animate-pulse h-28 flex flex-col justify-between'
+            className='glass-card rounded-3xl p-5 animate-pulse h-32 flex flex-col justify-between'
           >
-            <div className='w-16 h-3 bg-gray-200 dark:bg-gray-700 rounded'></div>
-            <div className='w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded'></div>
-            <div className='w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded'></div>
+            <div className='w-20 h-3 bg-slate-200 dark:bg-slate-800 rounded' />
+            <div className='w-28 h-7 bg-slate-200 dark:bg-slate-800 rounded' />
+            <div className='w-24 h-2 bg-slate-200 dark:bg-slate-800 rounded' />
           </div>
         ))}
       </div>
@@ -48,125 +52,121 @@ export default function ExpenseStats() {
 
   if (error || !stats) {
     return (
-      <div className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-5 rounded-2xl shadow-lg border border-gray-100/50 dark:border-gray-700/50 text-center'>
-        <p className='text-xs text-red-500 mb-2'>{error || 'No stats available'}</p>
+      <div className='glass-card rounded-3xl p-6 text-center space-y-3'>
+        <p className='text-xs text-rose-500 font-medium'>{error || 'No statistics available'}</p>
         <button
           onClick={loadStats}
-          className='text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg'
+          className='text-xs bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold px-4 py-2 rounded-xl transition-all'
         >
-          Retry
+          Refresh Analytics
         </button>
       </div>
     );
   }
 
-  const formatCurrency = (val: number) => {
-    return `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   return (
-    <div className='space-y-3 sm:space-y-4'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-        {/* Total Spending Card */}
-        <div className='relative overflow-hidden bg-gradient-to-br from-white/90 to-emerald-50/40 dark:from-gray-800/90 dark:to-emerald-950/20 backdrop-blur-sm p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100/60 dark:border-gray-700/60 hover:shadow-2xl transition-all duration-300 group'>
-          <div className='flex items-center justify-between mb-2'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400'>
-              Total Spending
-            </span>
-            <div className='w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm shadow-sm'>
-              💵
-            </div>
+    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+      
+      {/* 1. Total Spending Card */}
+      <div className='glass-card rounded-3xl p-5 relative overflow-hidden group hover:shadow-glow-sm transition-all duration-300'>
+        <div className='flex items-center justify-between mb-3'>
+          <span className='text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500'>
+            Total Expenditure
+          </span>
+          <div className='w-8 h-8 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm shadow-sm'>
+            💵
           </div>
-          <div className='text-xl sm:text-2xl font-black text-gray-900 dark:text-gray-100'>
-            {formatCurrency(stats.totalExpenses)}
-          </div>
-          <div className='mt-2 flex items-center text-[11px] text-gray-500 dark:text-gray-400'>
-            <span className='font-semibold text-emerald-600 dark:text-emerald-400 mr-1'>
-              {stats.transactionCount}
-            </span>
-            total recorded transactions
-          </div>
-          <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-60'></div>
         </div>
+        <div className='text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white tracking-tight tabular-nums'>
+          {formatCurrency(stats.totalExpenses)}
+        </div>
+        <div className='mt-3 flex items-center text-xs text-slate-500 dark:text-slate-400'>
+          <span className='font-mono font-bold text-brand-600 dark:text-brand-400 mr-1.5'>
+            {stats.transactionCount}
+          </span>
+          <span>total recorded receipts</span>
+        </div>
+        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-500 to-teal-500 opacity-80' />
+      </div>
 
-        {/* This Month Spending Card */}
-        <div className='relative overflow-hidden bg-gradient-to-br from-white/90 to-blue-50/40 dark:from-gray-800/90 dark:to-blue-950/20 backdrop-blur-sm p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100/60 dark:border-gray-700/60 hover:shadow-2xl transition-all duration-300 group'>
-          <div className='flex items-center justify-between mb-2'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400'>
-              This Month
-            </span>
-            <div className='w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm shadow-sm'>
-              📅
-            </div>
+      {/* 2. Monthly Trajectory Card */}
+      <div className='glass-card rounded-3xl p-5 relative overflow-hidden group hover:shadow-glow-cyan transition-all duration-300'>
+        <div className='flex items-center justify-between mb-3'>
+          <span className='text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500'>
+            This Month
+          </span>
+          <div className='w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-sm shadow-sm'>
+            📅
           </div>
-          <div className='text-xl sm:text-2xl font-black text-gray-900 dark:text-gray-100'>
-            {formatCurrency(stats.thisMonthExpenses)}
-          </div>
-          <div className='mt-2 flex items-center text-[11px]'>
-            {stats.monthlyChangePercentage !== 0 ? (
-              <span
-                className={`inline-flex items-center font-bold px-1.5 py-0.5 rounded-md text-[10px] mr-1.5 ${
-                  stats.monthlyChangePercentage > 0
-                    ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300'
-                    : 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
-                }`}
-              >
-                {stats.monthlyChangePercentage > 0 ? '↑' : '↓'} {Math.abs(stats.monthlyChangePercentage)}%
-              </span>
-            ) : null}
-            <span className='text-gray-500 dark:text-gray-400 text-[11px]'>
-              vs last month ({formatCurrency(stats.lastMonthExpenses)})
-            </span>
-          </div>
-          <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-60'></div>
         </div>
+        <div className='text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white tracking-tight tabular-nums'>
+          {formatCurrency(stats.thisMonthExpenses)}
+        </div>
+        <div className='mt-3 flex items-center text-xs'>
+          {stats.monthlyChangePercentage !== 0 ? (
+            <span
+              className={`inline-flex items-center font-mono font-bold px-2 py-0.5 rounded-lg text-[10px] mr-2 ${
+                stats.monthlyChangePercentage > 0
+                  ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900'
+                  : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900'
+              }`}
+            >
+              {stats.monthlyChangePercentage > 0 ? '▲ +' : '▼ '}
+              {stats.monthlyChangePercentage}%
+            </span>
+          ) : null}
+          <span className='text-slate-400 dark:text-slate-500 text-[11px] truncate'>
+            vs last mo ({formatCurrency(stats.lastMonthExpenses)})
+          </span>
+        </div>
+        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500 opacity-80' />
+      </div>
 
-        {/* Top Expense Category */}
-        <div className='relative overflow-hidden bg-gradient-to-br from-white/90 to-purple-50/40 dark:from-gray-800/90 dark:to-purple-950/20 backdrop-blur-sm p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100/60 dark:border-gray-700/60 hover:shadow-2xl transition-all duration-300 group'>
-          <div className='flex items-center justify-between mb-2'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400'>
-              Top Category
-            </span>
-            <div className='w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm shadow-sm'>
-              🏷️
-            </div>
+      {/* 3. Top Spending Category */}
+      <div className='glass-card rounded-3xl p-5 relative overflow-hidden group hover:shadow-glow-indigo transition-all duration-300'>
+        <div className='flex items-center justify-between mb-3'>
+          <span className='text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500'>
+            Top Expense Category
+          </span>
+          <div className='w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm shadow-sm'>
+            🏷️
           </div>
-          <div className='text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate'>
-            {stats.topCategory ? stats.topCategory.category : 'None'}
-          </div>
-          <div className='mt-2 flex items-center text-[11px] text-gray-500 dark:text-gray-400'>
-            {stats.topCategory ? (
-              <span>
-                <strong className='text-purple-600 dark:text-purple-400'>
-                  {formatCurrency(stats.topCategory.amount)}
-                </strong>{' '}
-                spent
-              </span>
-            ) : (
-              'No category data yet'
-            )}
-          </div>
-          <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-60'></div>
         </div>
+        <div className='text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate'>
+          {stats.topCategory ? stats.topCategory.category : 'None'}
+        </div>
+        <div className='mt-3 text-xs text-slate-500 dark:text-slate-400'>
+          {stats.topCategory ? (
+            <span>
+              <strong className='font-mono text-purple-600 dark:text-purple-400 font-bold'>
+                {formatCurrency(stats.topCategory.amount)}
+              </strong>{' '}
+              cumulative spend
+            </span>
+          ) : (
+            'Awaiting first transaction'
+          )}
+        </div>
+        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 opacity-80' />
+      </div>
 
-        {/* Average Transaction */}
-        <div className='relative overflow-hidden bg-gradient-to-br from-white/90 to-teal-50/40 dark:from-gray-800/90 dark:to-teal-950/20 backdrop-blur-sm p-4 sm:p-5 rounded-2xl shadow-xl border border-gray-100/60 dark:border-gray-700/60 hover:shadow-2xl transition-all duration-300 group'>
-          <div className='flex items-center justify-between mb-2'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400'>
-              Avg. Per Expense
-            </span>
-            <div className='w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-sm shadow-sm'>
-              ⚡
-            </div>
+      {/* 4. Average Per Transaction */}
+      <div className='glass-card rounded-3xl p-5 relative overflow-hidden group hover:shadow-glow-sm transition-all duration-300'>
+        <div className='flex items-center justify-between mb-3'>
+          <span className='text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500'>
+            Mean Transaction
+          </span>
+          <div className='w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm shadow-sm'>
+            ⚡
           </div>
-          <div className='text-xl sm:text-2xl font-black text-gray-900 dark:text-gray-100'>
-            {formatCurrency(stats.averageExpense)}
-          </div>
-          <div className='mt-2 flex items-center text-[11px] text-gray-500 dark:text-gray-400'>
-            Across all logged receipts
-          </div>
-          <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-500 opacity-60'></div>
         </div>
+        <div className='text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 dark:text-white tracking-tight tabular-nums'>
+          {formatCurrency(stats.averageExpense)}
+        </div>
+        <div className='mt-3 text-xs text-slate-500 dark:text-slate-400'>
+          Average across all logged records
+        </div>
+        <div className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-brand-500 opacity-80' />
       </div>
     </div>
   );

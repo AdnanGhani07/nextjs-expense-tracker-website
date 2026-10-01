@@ -1,25 +1,45 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Footer from "@/components/Footer";
 import ClerkThemeProvider from "@/components/ClerkThemeProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fontSans = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fontMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "ExpenseTracker AI - Smart Financial Management",
+  title: "Finova AI — Intelligent Financial Command Center",
   description:
-    "AI-powered expense tracking app with intelligent insights, smart categorization, and personalized financial recommendations",
+    "Autonomous expense tracking, real-time spending analytics, and AI financial advisory powered by Gemini.",
+  keywords: [
+    "expense tracker",
+    "personal finance",
+    "AI financial advisor",
+    "budget manager",
+    "Finova AI",
+    "smart finance",
+  ],
+  authors: [{ name: "Finova AI Team" }],
+  icons: {
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "Finova AI — Intelligent Financial Command Center",
+    description:
+      "Autonomous expense tracking, real-time spending analytics, and AI financial advisory powered by Gemini.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -28,12 +48,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
               (function() {
                 const theme = localStorage.getItem('theme') || 
                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -42,20 +61,23 @@ export default function RootLayout({
                 }
               })();
             `,
-            }}
-          />
-        </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300`}
-        >
-          <ThemeProvider>
-            <ClerkThemeProvider>
+          }}
+        />
+      </head>
+      <body
+        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased bg-slate-50 dark:bg-obsidian-950 text-slate-800 dark:text-slate-100 min-h-screen selection:bg-brand-500/20 selection:text-brand-500`}
+      >
+        <ThemeProvider>
+          <ClerkThemeProvider>
+            <div className="relative min-h-screen flex flex-col">
+              <div className="ambient-glow" aria-hidden="true" />
               <Navbar />
-              {children}
+              <main className="flex-1 relative z-10">{children}</main>
               <Footer />
-            </ClerkThemeProvider>
-          </ThemeProvider>
-        </body>
-      </html>
+            </div>
+          </ClerkThemeProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
