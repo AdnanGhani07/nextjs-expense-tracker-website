@@ -2,7 +2,7 @@
 
 # 💰 Expense Tracker AI
 
-**An enterprise-grade, serverless personal finance application built with Next.js 15, Google Gemini 2.0 Flash, Neon Serverless Postgres, and Clerk Authentication.**
+**An enterprise-grade, serverless personal finance application built with Next.js 15, Google Gemini 3.5 Flash Lite, Neon Serverless Postgres, and Clerk Authentication.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.0.0-61dafb?style=for-the-badge&logo=react)](https://react.dev/)
@@ -26,7 +26,7 @@
 
 ## 🚀 Key Features
 
-- **🤖 Autonomous AI Categorization & Insights:** Powered by Google's `gemini-2.0-flash` to automatically categorize transactions and surface personalized financial advice.
+- **🤖 Autonomous AI Categorization & Insights:** Powered by Google's `gemini-3.5-flash-lite` to automatically categorize transactions and surface personalized financial advice.
 - **💬 Interactive AI Financial Advisor:** In-app conversational drawer allowing users to ask questions like *"Where did most of my money go?"* or *"How can I cut bills this month?"*.
 - **📊 Real-Time Analytics & SVG Visualizations:**
   - 4 Key Metric Summary Cards (Total Expenses, Month-over-Month Delta, Top Category, Average Expense).
@@ -51,7 +51,7 @@ graph TD
     subgraph Application Stack
         CloudRun --> NextApp[Next.js 15 Standalone App]
         NextApp --> ClerkAuth[Clerk Authentication]
-        NextApp --> GeminiAI[Google Gemini 2.0 Flash API]
+        NextApp --> GeminiAI[Google Gemini 3.5 Flash Lite API]
         NextApp --> PrismaORM[Prisma ORM Client]
     end
 
@@ -79,7 +79,7 @@ graph TD
 | **Database** | [Neon Postgres](https://neon.tech/) | Serverless PostgreSQL with connection pooling |
 | **ORM** | [Prisma 6](https://www.prisma.io/) | Type-safe query engine and schema migrations |
 | **Authentication** | [Clerk](https://clerk.com/) | Multi-factor auth, social logins, secure session JWTs |
-| **AI Intelligence** | [Google Generative AI](https://aistudio.google.com/) | `gemini-2.0-flash` for categorization and advisory |
+| **AI Intelligence** | [Google Generative AI](https://aistudio.google.com/) | `gemini-3.5-flash-lite` for categorization and advisory |
 | **Cloud Hosting** | [Google Cloud Run](https://cloud.google.com/run) | Scale-to-zero serverless container execution |
 | **CI/CD** | [GitHub Actions](https://github.com/features/actions) | Keyless Workload Identity Federation (WIF) deployments |
 | **Infrastructure** | [Terraform](https://www.terraform.io/) | Infrastructure-as-Code for GCP resources |
