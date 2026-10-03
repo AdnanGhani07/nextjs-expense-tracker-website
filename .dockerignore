@@ -16,3 +16,6 @@ tests
 *credentials*.json
 *service-account*.json
 *.log
+docs
+*.md
+LICENSE
